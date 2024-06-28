@@ -7,10 +7,10 @@ const conversationSchema = new Schema(
     type: {
       type: String,
       enum: ["private", "group"],
-      required: true,
+      required: true,   
     },
 
-    // 会话成员
+    // 会话成员       
     members: [
       {
         type: Schema.Types.ObjectId,
@@ -20,7 +20,7 @@ const conversationSchema = new Schema(
     ],
 
     // 会话名称 (可选, 仅群聊需要)
-    name: {
+    chatName: {
       type: String,
       trim: true,
     },

@@ -1,66 +1,94 @@
 const userSchema = require("../models/user.model");
-const JWT = require("../utils/JWT");
 
 const userController = {
   // 用户注册
   register: async (req) => {
     try {
       const { username, password } = req.body;
-      const user = await userSchema.create({ username, password });
-      return {
-        code: 200,
-        message: "注册成功",
-        data: {
-          _id: user._id,
-          username: user.username,
-          //...其他需要返回的用户信息
-        },
-      };
-    } catch (error) {
-      console.error("注册失败:", error); // 打印错误信息到控制台，方便排查问题
-      return {
-        code: 500,
-        message: "注册失败",
-      };
-    }
+      const result = await userSchema.create({ username, password });
+      return result;
+    } catch (error) {}
   },
 
   // 用户登录
   login: async (req, res) => {
     try {
       const { username, password } = req.body;
-      const user = await userSchema.findOne({ username, password });
-      if (user) {
-        // 设置token
-        const token = JWT.generateToken(
-          { username, password },
-          process.env.JWT_SECRET
-        );
-        // 将token放在响应头中返回给前端
-        res.authorization = token;
-        return {
-          code: 200,
-          message: "登录成功",
-          data: {
-            _id: user._id,
-            username: user.username,
-          },
-        };
-      } else {
-        return {
-          code: 401,
-          message: "用户名或密码错误",
-          data: null,
-        };
-      }
-    } catch (error) {
-      console.error("登录失败:", error);
-      return {
-        code: 500,
-        message: "登录失败",
-      };
-    }
+      const result = await userSchema.findOne({ username, password });
+      return result;
+    } catch (error) {}
   },
+
+  // 根据用户的ID获取用户消息
+  info: async (userId) => {
+    try {
+      const user = await userSchema.findById(userId);
+      return user;
+    } catch (error) {}
+  },
+
+  // 搜索好友
+  searchFriend: async (keywords) => {
+    try {
+      const result = await userSchema.find({ username: { $regex: keywords } });
+      return result;
+    } catch (error) {}
+  },
+
+  // 添加好友至好友列表（还未同意）
+  friendRequest: async (fromUserId, toUserId) => {
+    // 更新申请者的好友发送列表
+    const result = await userSchema.findByIdAndUpdate(fromUserId, {
+      $push: { sentFriendRequests: { userId: toUserId } },
+    });
+    // 更新接收者的好友申请列表
+    const result2 = await userSchema.findByIdAndUpdate(toUserId, {
+      $push: { friendRequests: { userId: fromUserId } },
+    });
+    // 等待所有的promise执行完毕
+    const finalResults = Promise.all([result, result2]);
+    return finalResults;
+  },
+
+  // 同意好友申请
+  acceptFriendRequest: async (userId, fromUserId) => {
+    const result1 = await userSchema.findOneAndUpdate(
+      { _id: userId, "friendRequests.userId": fromUserId },
+      {
+        $set: { "friendRequests.$.status": "accepted" },
+        $push: { friends: fromUserId },
+      }
+    );
+
+    // 更新发送方的请求状态
+    const result2 = await userSchema.findOneAndUpdate(
+      { _id: fromUserId, "sentFriendRequests.userId": userId },
+      { $set: { "sentFriendRequests.$.status": "accepted" } }
+    );
+    // // 反向添加好友(将好友添加到我的好友列表)
+    await userSchema.findByIdAndUpdate(fromUserId, {
+      $push: { friends: userId },
+    });
+
+    const finalResults = Promise.all([result1, result2]);
+    return finalResults;
+  },
+
+  // 拒绝好友申请
+  rejectFriendRequest: async (userId, fromUserId) => {
+    const result1 = await userSchema.findOneAndUpdate(
+      { _id: userId, "friendRequests.userId": fromUserId },
+      { $set: { "friendRequests.$.status": "rejected" } }
+    );
+    const result2 = await userSchema.findOneAndUpdate(
+      { _id: fromUserId, "sentFriendRequests.userId": userId },
+      { $set: { "sentFriendRequests.$.status": "rejected" } }
+    );
+    const finalResults = Promise.all([result1, result2]);
+    return finalResults;
+  },
+
+  // 验证用户是否存在
   verify: async (username) => {
     return await userSchema.findOne({ username });
   },

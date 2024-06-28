@@ -14,9 +14,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173",
+//     credentials: true,
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   })
+// );
 app.use(authMiddleware);
-app.use("/", indexRouter);
+app.use("/v1", indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
