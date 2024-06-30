@@ -35,6 +35,18 @@ const userController = {
     } catch (error) {}
   },
 
+  // 更新用户信息
+  updateUserInfo: async (userId, username, avatar, phone) => {
+    try {
+      const result = await userSchema.findByIdAndUpdate(userId, {
+        username,
+        avatar,
+        phone,
+      });
+      return result;
+    } catch (error) {}
+  },
+
   // 添加好友至好友列表（还未同意）
   friendRequest: async (fromUserId, toUserId) => {
     // 更新申请者的好友发送列表

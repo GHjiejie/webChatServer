@@ -1,5 +1,11 @@
 const userController = require("../controller/userController");
 const JWT = require("../utils/JWT");
+const sharp = require("sharp");
+const fs = require("fs").promises;
+const path = require("path");
+// 解释 __dirname: 当前模块的目录名, 也就是当前文件所在的目录,这里时services目录，所以我们要使用../来返回上一级目录
+// const uploadDir = path.join(__dirname, "../public/uploads/avatar");
+
 const userServices = {
   // 用户注册
   register: async (req, res) => {
@@ -95,6 +101,68 @@ const userServices = {
       res.json({
         code: 500,
         message: "搜索失败",
+      });
+    }
+  },
+  // 更新用户信息
+  updateUserInfo: async (req, res) => {
+    const { userId, username, avatar, phone } = req.body;
+
+    try {
+      let filePath = avatar; // 默认使用传入的 avatar
+      let uploadPath = "";
+
+      if (req.file) {
+        // 压缩图像
+        const compressedImageBuffer = await sharp(req.file.buffer)
+          .resize(800, 800, {
+            fit: sharp.fit.inside,
+            withoutEnlargement: true,
+          })
+          .toFormat("jpeg")
+          .jpeg({ quality: 80 })
+          .toBuffer();
+
+        const timestamp = Date.now();
+        // 生成文件路径
+        filePath = path.join(
+          // process.env.SERVER_URL,
+          process.env.UPLOAD_DIR,
+          "avatar",
+          `${timestamp}-${req.file.originalname}`
+        );
+        await fs.writeFile(filePath, compressedImageBuffer);
+        uploadPath = `${process.env.UPLOAD_DB_URL}/uploads/avatar/${timestamp}-${req.file.originalname}`;
+        filePath = uploadPath;
+        // console.log("上传到服务器的文件路径", filePath);
+
+        // 将文件写入磁盘
+      }
+
+      // 更新用户信息
+      const updateResult = await userController.updateUserInfo(
+        userId,
+        username,
+        filePath,
+        phone
+      );
+
+      if (updateResult) {
+        res.json({
+          code: 200,
+          message: "更新用户信息成功",
+        });
+      } else {
+        res.json({
+          code: 500,
+          message: "更新用户信息失败",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating user info:", error);
+      res.json({
+        code: 500,
+        message: "更新用户信息时出错",
       });
     }
   },

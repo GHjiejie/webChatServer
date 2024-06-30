@@ -2,7 +2,7 @@ const JWT = require("../utils/JWT");
 
 const authMiddleware = (req, res, next) => {
   if (req.url.includes("login") || req.url.includes("register")) {
-    // console.log("输出当前用户的请求路径", req.url);
+    console.log("输出当前用户的请求路径", req.url);
     next();
   } else {
     // console.log("输出当前用户的请求路径,需要token", req.url);
