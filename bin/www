@@ -7,6 +7,7 @@
 var app = require("../app");
 var debug = require("debug")("webchatserver:server");
 var http = require("http");
+const initSocketIO = require("../chat/index.js");
 
 // require("dotenv").config();
 require("../config/mongoDB.config");
@@ -23,6 +24,9 @@ app.set("port", port);
  */
 
 var server = http.createServer(app);
+// 初始化socket.io服务，同时将io实例返回，如果后面不需要这个实例，我们可以不接受，直接初始化即可
+// const io=initSocketIO(server);
+initSocketIO(server);
 
 /**
  * Listen on provided port, on all network interfaces.

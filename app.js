@@ -1,10 +1,11 @@
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
-const cors = require("cors");
+// const cors = require("cors");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const authMiddleware = require("./middleware/authMiddleware");
+
 const dotenv = require("dotenv");
 const indexRouter = require("./routes/index");
 const envFile =
