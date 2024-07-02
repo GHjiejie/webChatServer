@@ -14,12 +14,16 @@ const userSchema = new Schema(
   {
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    avatar: { type: String, default: "" },
+    avatar: {
+      type: String,
+      default: "http://localhost:3000/uploads/default.png",
+    },
     status: {
       type: String,
       enum: ["online", "offline", "busy"],
       default: "offline",
     },
+    phone: { type: String, default: "18196576670" },
     friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
     friendRequests: [friendRequestSchema],
     sentFriendRequests: [friendRequestSchema],
