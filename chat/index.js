@@ -9,15 +9,24 @@ const initSocketIO = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("a user connected");
+    // 监听加入房间事件
+    socket.on("joinRoom", (roomId) => {
+      socket.join(roomId);
+      console.log(`用户 ${socket.id} 加入房间 ${roomId}`);
+    });
+
+    // 监听私聊消息
+    socket.on("privateChat", (content) => {
+      // 获取 roomId 和消息内容
+
+      console.log(
+        `接收来自房间 ${content.conversationId} 的消息: ${content.text}`
+      );
+      io.to(content.conversationId).emit("chatRes", content); // 向指定房间发送消息
+    });
 
     socket.on("disconnect", () => {
       console.log("user disconnected");
-    });
-
-    socket.on("join", (msg) => {
-      console.log("message: " + msg);
-      io.emit("chatRes", "我是服务器，我收到了客户端的消息");
     });
 
     // 可以在这里添加更多的 Socket.IO 事件处理逻辑
@@ -26,4 +35,4 @@ const initSocketIO = (server) => {
   return io; // 返回 io 实例，方便在其他地方使用,如果没有地方使用的话，直接初始化就好了
 };
 
-module.exports = initSocketIO; 
+module.exports = initSocketIO;

@@ -1,5 +1,6 @@
 const conversationSchema = require("../models/conversation.model.js");
 const userSchema = require("../models/user.model.js");
+const messageSchema = require("../models/messages.model.js");
 const chatController = {
   // 创建私聊房间
   createPrivateRoom: async (userId, friendId) => {
@@ -21,7 +22,7 @@ const chatController = {
       return result;
     } catch (error) {}
   },
-  // 获取所有的会话列表
+  //获取与当前用户有关的所有的会话列表
   getConversationList: async (userId) => {
     try {
       const result = await conversationSchema.find({ members: userId });
@@ -55,6 +56,32 @@ const chatController = {
       console.error("获取会话列表失败:", error);
       // 错误处理
     }
+  },
+  // 获取选定的会话列表
+  getSelectedConversation: async (conversationId) => {
+    try {
+      const result = await conversationSchema.findById(conversationId);
+      return result;
+    } catch (error) {}
+  },
+  // 根据 conversationId 获取消息列表
+  getMessages: async (conversationId) => {
+    try {
+      const result = await messageSchema.find({
+        conversationId: conversationId,
+      });
+      return result;
+    } catch (error) {}
+  },
+  // 发送消息
+  sendMessage: async (conversationId, content) => {
+    try {
+      const result = await messageSchema.create({
+        conversationId: conversationId,
+        content: content,
+      });
+      return result;
+    } catch (error) {}
   },
 };
 module.exports = chatController;
