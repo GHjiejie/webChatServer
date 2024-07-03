@@ -3,17 +3,6 @@ const router = express.Router();
 const multer = require("multer");
 
 const userServices = require("../services/userServices");
-// 设置用户头像存储方式
-// const newAvatarStorage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "./public/uploads/avatar");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname);
-//   },
-// });
-// // 创建上传实例;
-// const uploadNewAvatar = multer({ storage: newAvatarStorage });
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 // 用户注册

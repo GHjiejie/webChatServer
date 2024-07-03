@@ -36,8 +36,16 @@ const userServices = {
   login: async (req, res) => {
     try {
       const { username, password } = req.body;
+      const hasUser = await userController.verify(username);
+      if (!hasUser) {
+        res.json({
+          code: 404,
+          message: "用户不存在",
+        });
+        return;
+      }
       const result = await userController.login(req, res);
-      console.log("输出登录结果", result);
+      // console.log("输出登录结果", result);
       if (result) {
         const token = JWT.generateToken(
           {
@@ -56,7 +64,7 @@ const userServices = {
         });
       } else {
         res.json({
-          code: 401,
+          code: 422,
           message: "用户名或密码错误",
         });
       }
@@ -150,68 +158,6 @@ const userServices = {
     }
   },
 
-  // 更新用户信息
-  // updateUserInfo: async (req, res) => {
-  //   const { userId, username, avatar, phone } = req.body;
-
-  //   try {
-  //     let filePath = avatar; // 默认使用传入的 avatar
-  //     let uploadPath = "";
-
-  //     if (req.file) {
-  //       // 压缩图像
-  //       const compressedImageBuffer = await sharp(req.file.buffer)
-  //         .resize(800, 800, {
-  //           fit: sharp.fit.inside,
-  //           withoutEnlargement: true,
-  //         })
-  //         .toFormat("jpeg")
-  //         .jpeg({ quality: 80 })
-  //         .toBuffer();
-
-  //       const timestamp = Date.now();
-  //       // 生成文件路径
-  //       filePath = path.join(
-  //         // process.env.SERVER_URL,
-  //         process.env.UPLOAD_DIR,
-  //         "avatar",
-  //         `${timestamp}-${req.file.originalname}`
-  //       );
-  //       await fs.writeFile(filePath, compressedImageBuffer);
-  //       uploadPath = `${process.env.UPLOAD_DB_URL}/uploads/avatar/${timestamp}-${req.file.originalname}`;
-  //       filePath = uploadPath;
-  //       // console.log("上传到服务器的文件路径", filePath);
-
-  //       // 将文件写入磁盘
-  //     }
-
-  //     // 更新用户信息
-  //     const updateResult = await userController.updateUserInfo(
-  //       userId,
-  //       username,
-  //       filePath,
-  //       phone
-  //     );
-
-  //     if (updateResult) {
-  //       res.json({
-  //         code: 200,
-  //         message: "更新用户信息成功",
-  //       });
-  //     } else {
-  //       res.json({
-  //         code: 500,
-  //         message: "更新用户信息失败",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating user info:", error);
-  //     res.json({
-  //       code: 500,
-  //       message: "更新用户信息时出错",
-  //     });
-  //   }
-  // },
   // 添加好友至好友申请列表
   friendRequest: async (req, res) => {
     const { fromUserId, toUserId } = req.body;
