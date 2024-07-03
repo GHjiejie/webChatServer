@@ -19,9 +19,9 @@ const initSocketIO = (server) => {
     socket.on("privateChat", (content) => {
       // 获取 roomId 和消息内容
 
-      console.log(
-        `接收来自房间 ${content.conversationId} 的消息: ${content.text}`
-      );
+      // console.log(
+      //   `接收来自房间 ${content.conversationId} 的消息: ${content.text}`
+      // );
       io.to(content.conversationId).emit("chatRes", content); // 向指定房间发送消息
     });
 

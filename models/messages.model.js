@@ -37,6 +37,10 @@ const messageSchema = new Schema(
           mediaUrl: {
             type: String,
           },
+          // 文件类型 (可选, 仅当 type 为 'file' 时需要)
+          fileType: {
+            type: String,
+          },
 
           // 文件名 (可选, 仅当 type 为 'file' 时需要)
           fileName: {

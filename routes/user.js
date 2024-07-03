@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-// const sharp = require("sharp");
+
 const userServices = require("../services/userServices");
 // 设置用户头像存储方式
 // const newAvatarStorage = multer.diskStorage({
