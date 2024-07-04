@@ -100,6 +100,24 @@ const userController = {
     return finalResults;
   },
 
+  // 判断用户是否为好友
+  isFriend: async (userId, friendId) => {
+    const user = await userSchema.findById(userId);
+    const isFriend = user.friends.includes(friendId);
+    return isFriend;
+  },
+
+  // 判断是否发送过好友申请
+  isSentFriendRequest: async (userId, friendId) => {
+    const user = await userSchema.findById(userId);
+    // 问题出在比较 ObjectId 的方式上。你不能直接使用 === 来比较两个 ObjectId，即使它们看起来相同。
+    const isSent = user.sentFriendRequests.some((item) =>
+      item.userId.equals(friendId)
+    );
+
+    return isSent;
+  },
+
   // 验证用户是否存在
   verify: async (username) => {
     return await userSchema.findOne({ username });

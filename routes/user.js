@@ -34,6 +34,10 @@ router.post("/acceptFriendRequest", userServices.acceptFriendRequest);
 // 拒绝好友申请
 router.post("/rejectFriendRequest", userServices.rejectFriendRequest);
 
-// router.post("/addFriend", userServices.addFriend);
+// 判断用户是否为好友
+router.post("/isFriend", userServices.isFriend);
+
+// 判断是否发送过好友申请
+router.post("/isSentFriendRequest", userServices.isSentFriendRequest);
 
 module.exports = router;

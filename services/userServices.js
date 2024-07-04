@@ -206,6 +206,40 @@ const userServices = {
       });
     }
   },
+  // 判断用户是否为好友
+  isFriend: async (req, res) => {
+    const { userId, friendId } = req.body;
+    console.log("输出userId", userId);
+    console.log("输出friendId", friendId);
+    const result = await userController.isFriend(userId, friendId);
+    if (result) {
+      res.json({
+        code: 200,
+        message: "是好友",
+      });
+    } else {
+      res.json({
+        code: 500,
+        message: "不是好友",
+      });
+    }
+  },
+  // 判断是否发送过好友申请
+  isSentFriendRequest: async (req, res) => {
+    const { userId, friendId } = req.body;
+    const result = await userController.isSentFriendRequest(userId, friendId);
+    if (result) {
+      res.json({
+        code: 200,
+        message: "已发送好友申请",
+      });
+    } else {
+      res.json({
+        code: 500,
+        message: "未发送好友申请",
+      });
+    }
+  },
 };
 
 module.exports = userServices;
